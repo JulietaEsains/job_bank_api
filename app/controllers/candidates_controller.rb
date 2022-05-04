@@ -1,5 +1,6 @@
 class CandidatesController < ApplicationController
   before_action :set_candidate, only: [:show, :update, :destroy]
+  before_action :check_token, only: [:update, :destroy]
 
   def index
     @candidates = Candidate.all
@@ -20,8 +21,7 @@ class CandidatesController < ApplicationController
   end
 
   def update
-    @candidate = Candidate.update(candidate_params)
-    if @candidate.save
+    if @candidate.update(candidate_params)
       render status: 200, json: {candidate: @candidate}
     else
       render status: 400, json: {message: @candidate.errors.details}
@@ -38,10 +38,21 @@ class CandidatesController < ApplicationController
 
   private 
   def set_candidate
-    @candidate = Candidate.find(params:[:id])
+    @candidate = Candidate.find_by(id: params:[:id])
+    return if @candidate.present?
+
+    render status: 404, json: {message: "No se encontró el candidato"}
+    false
   end
   
   def candidate_params
     params.require(:candidate).permit(:name, :lastName, :age)
+  end
+
+  def check_token
+    return if request.headers["Authorization"] == "Bearer #{@candidate.token}"
+
+      render status: 401, json: {message: "No coincide el token de autenticación"}
+      false
   end
 end

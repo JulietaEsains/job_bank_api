@@ -21,8 +21,7 @@ class JobApplicationsController < ApplicationController
   end
 
   def update
-    @job_application = Job_application.update(job_application_params)
-    if @job_application.save
+    if @job_application.update(job_application_params)
       render status: 200, json: {job_application: @job_application}
     else
       render status: 400, json: {message: @job_application.errors.details}
@@ -39,7 +38,11 @@ class JobApplicationsController < ApplicationController
 
   private 
   def set_job_application
-    @job_application = Job_application.find(params:[:id])
+    @job_application = Job_application.find_by(id: params:[:id])
+    return if @job_application.present?
+
+    render status: 404, json: {message: "No se encontró la aplicación de trabajo"}
+    false
   end
   
   def job_application_params

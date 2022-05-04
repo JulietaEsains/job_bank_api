@@ -7,7 +7,11 @@ Rails.application.routes.draw do
   resources :candidates do 
     resources :job_applications, only: [:create]
   end
-  resources :job_applications, except: [:create]
+  resources :job_applications, except: [:create] do
+    member do
+      post :apply
+    end
+  end
   # Defines the root path route ("/")
   # root "articles#index"
 end
