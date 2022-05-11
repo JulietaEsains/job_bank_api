@@ -12,7 +12,7 @@ class CandidatesController < ApplicationController
   end
 
   def create
-    @candidate = Candidate.new(candidate_params)
+    @candidate = Candidate.new(candidate)
     if @candidate.save
       render status: 200, json: {candidate: @candidate}
     else
@@ -21,7 +21,8 @@ class CandidatesController < ApplicationController
   end
 
   def update
-    if @candidate.update(candidate_params)
+    @candidate.assign_attributes(candidate_params)
+    if @candidate.save
       render status: 200, json: {candidate: @candidate}
     else
       render status: 400, json: {message: @candidate.errors.details}
@@ -44,15 +45,15 @@ class CandidatesController < ApplicationController
     render status: 404, json: {message: "No se encontró el candidato"}
     false
   end
-  
-  def candidate_params
-    params.require(:candidate).permit(:name, :lastName, :age)
-  end
 
   def check_token
     return if request.headers["Authorization"] == "Bearer #{@candidate.token}"
 
       render status: 401, json: {message: "No coincide el token de autenticación"}
       false
+  end
+
+  def candidate_params
+    params.require(:candidate).permit(:name, :lastName, :age)
   end
 end

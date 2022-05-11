@@ -1,5 +1,6 @@
 class JobApplicationsController < ApplicationController
   before_action :set_job_application, only: [:show, :update, :destroy]
+    before_action :check_token, only: [:create, :update, :destroy]
 
   def index
     @job_applications = Job_application.all
@@ -12,7 +13,7 @@ class JobApplicationsController < ApplicationController
 
   def create
     candidate = Candidate.find_by(id: params[:candidate_id])
-    @job_application = candidate.job_applications.new(job_application_params)
+    @job_application = @candidate.job_applications.new(job_application_params)
     if @job_application.save
       render status: 200, json: {job_application: @job_application}
     else
@@ -47,5 +48,12 @@ class JobApplicationsController < ApplicationController
   
   def job_application_params
     params.require(:job_application).permit(:status, :message)
+  end
+
+  def check_token
+    return if request.headers["Authorization"] == "Bearer #{@candidate.token}"
+
+      render status: 401, json: {message: "No coincide el token de autenticación"}
+      false
   end
 end

@@ -9,6 +9,9 @@ class Candidate < ApplicationRecord
     validates :age, presence: false
     validates :token, uniqueness: true
 
+    #Callbacks
+    before_create :set_token
+
     #Métodos
     def set_token
         self.token = SecureRandom.uuid

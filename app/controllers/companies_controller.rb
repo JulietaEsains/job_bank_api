@@ -45,15 +45,15 @@ class CompaniesController < ApplicationController
     render status: 404, json: {message: "No se encontró la compañía"}
     false
   end
-  
-  def company_params
-    params.require(:company).permit(:name, :description)
-  end
 
   def check_token
     return if request.headers["Authorization"] == "Bearer #{@company.token}"
 
       render status: 401, json: {message: "No coincide el token de autenticación"}
       false
+  end
+
+  def company_params
+    params.require(:company).permit(:name, :description)
   end
 end
